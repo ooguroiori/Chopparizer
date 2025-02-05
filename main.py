@@ -176,18 +176,19 @@ async def play(ctx, url):
             print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
             for i, song in enumerate(result, 1):
                 song_info = {
-                    'url': song['webpage_url'],
-                    'title': song['title'],
+                    'url': song.get('url') or song.get('webpage_url') or song['id'],  # 複数のフィールドをチェック
+                    'title': song.get('title', f'Track {i}'),  # タイトルがない場合はTrack番号
                     'requester': ctx.author
                 }
                 bot.queue.append(song_info)
-                print(f"[PLAYLIST] {i}. {song['title']}")
+                print(f"[PLAYLIST] {i}. {song_info['title']}")
                 
                 # 最初の曲の場合かつ再生していない場合は再生開始
                 if i == 1 and not bot.is_playing:
                     await bot.play_next(ctx)
             
             print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
+
         else:
             print("\n[PLAYLIST] 単曲を検出")
             song_info = {
