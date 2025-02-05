@@ -74,33 +74,34 @@ class YTDLSource(discord.PCMVolumeTransformer):
     async def play_next(self, ctx):
         if len(self.queue) > 0:
             self.is_playing = True
-            self.current_song = self.queue.popleft()
-
+            self.current_song = self.queue[0]  # まだキューから削除しない
+            
             try:
                 print(f"[DEBUG] 次の曲を再生準備中: {self.current_song['title']}")
                 player = await YTDLSource.from_url(self.current_song['url'], loop=self.loop, stream=True)
                 
                 if isinstance(player, list):
-                    # プレイリストの場合
                     first_song = player[0]
                     audio = discord.FFmpegPCMAudio(first_song['url'], **ffmpeg_options)
                 else:
-                    # 単曲の場合
                     audio = player
 
-                ctx.voice_client.play(
-                    audio, 
-                    after=lambda e: self.loop.create_task(self.play_next(ctx))
-                )
+                def after_playing(error):
+                    if error:
+                        print(f"[ERROR] 再生エラー: {str(error)}")
+                    self.loop.create_task(self.play_next(ctx))
+
+                ctx.voice_client.play(audio, after=after_playing)
+                self.queue.popleft()  # 再生開始後にキューから削除
+                
                 print(f"[DEBUG] 再生開始: {self.current_song['title']}")
 
                 if self.repeat:
                     self.queue.append(self.current_song)
-                
-                await ctx.send(f'再生中: {self.current_song["title"]}')
             
             except Exception as e:
                 print(f"[ERROR] 再生エラー: {str(e)}")
+                self.queue.popleft()  # エラー時もキューから削除
                 await self.play_next(ctx)
         else:
             self.is_playing = False
@@ -210,13 +211,15 @@ async def play(ctx, url):
 @bot.command(name='skip')
 async def skip(ctx):
     if ctx.voice_client:
-        # 現在の再生を停止
-        ctx.voice_client.stop()
+        # 確実に現在の再生を停止
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
         
-        # 少し待機して確実に停止させる
-        await asyncio.sleep(0.5)
+        # 状態をリセット
+        bot.is_playing = False
         
         # 次の曲を再生
+        await asyncio.sleep(0.5)  # 状態の変更を待つ
         await bot.play_next(ctx)
         await ctx.send("スキップしました")
     else:
