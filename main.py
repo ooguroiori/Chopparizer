@@ -12,27 +12,31 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 # YTDLのオプション設定
 ytdl_format_options = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio',  # 'best'を削除してaudioのみに
     'extractaudio': True,
     'audioformat': 'mp3',
     'outtmpl': '%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': False,
     'nocheckcertificate': True,
-    'ignoreerrors': True,  # エラーを無視して続行
+    'ignoreerrors': True,
     'logtostderr': False,
-    'quiet': False,  # 進行状況を表示
-    'no_warnings': False,  # 警告を表示
+    'quiet': True,
+    'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
-    'force-ipv4': True,    # IPv4を強制
-    'sleep-interval': 1,   # リクエスト間隔を短く
-    'max-sleep-interval': 5
+    'extract_flat': 'in_playlist',
+    'force-ipv4': True,
+    'buffer-size': 32768,
+    'concurrent-fragments': 5,
+    'postprocessor-args': ['-threads', '4'],
+    'prefer-insecure': True,
+    'no-check-formats': True
 }
 
 
 ffmpeg_options = {
-    'options': '-vn'
+    'options': '-vn -threads 4 -preset ultrafast -tune zerolatency'
 }
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
@@ -45,36 +49,26 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.url = data.get('url')
 
     @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        print("[DEBUG] Starting from_url method")
+    async def from_url(cls, url, *, loop=None, stream=True):
         loop = loop or asyncio.get_event_loop()
-        print(f"[DEBUG] Extracting info for URL: {url}")
+        tasks = []
         
-        try:
-            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-            if data is None:
-                print("[DEBUG] データの取得に失敗しました")
-                raise ValueError("動画情報を取得できませんでした")
-                
-            print("[DEBUG] データ取得成功")
-            print(f"[DEBUG] データタイプ: {type(data)}")
-            
-            if 'entries' in data:
-                print(f"[DEBUG] プレイリスト検出: {len(data['entries'])}曲")
-                return data['entries']
-            else:
-                print("[DEBUG] 単曲検出")
-                filename = data['url'] if stream else ytdl.prepare_filename(data)
-                return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
-                
-        except Exception as e:
-            print(f"[DEBUG] エラー発生: {str(e)}")
-            raise
-
+        async def extract_info():
+            return await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        
+        data = await extract_info()
+        
+        if 'entries' in data:
+            first_song = data['entries'][0]
+            return cls(discord.FFmpegPCMAudio(first_song['url'], **ffmpeg_options), data=first_song)
+        return cls(discord.FFmpegPCMAudio(data['url'], **ffmpeg_options), data=data)
 
 
 class MusicBot(commands.Bot):
     def __init__(self):
+        # 既存のコードに追加
+        self.song_cache = {}  # URLをキーとしたキャッシュ
+        
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(command_prefix='!', intents=intents)
@@ -84,6 +78,14 @@ class MusicBot(commands.Bot):
         self.repeat = False
         self.current_song = None
 
+    async def get_song_info(self, url):
+        if url in self.song_cache:
+            return self.song_cache[url]
+        # 新規取得の場合
+        info = await YTDLSource.from_url(url, loop=self.loop)
+        self.song_cache[url] = info
+        return info
+    
     async def play_next(self, ctx):
         if len(self.queue) > 0:
             self.is_playing = True
@@ -117,55 +119,59 @@ async def play(ctx, url):
         await ctx.send("ボイスチャンネルに接続してください！")
         return
 
-    print(f"\n[DEBUG] Received URL: {url}")  # URLの受信を確認
+    print(f"\n[PLAYLIST] URLを受信: {url}")
 
     channel = ctx.message.author.voice.channel
     if ctx.voice_client is None:
         await channel.connect()
-        print("[DEBUG] Bot connected to voice channel")
+        print("[PLAYLIST] ボイスチャンネルに接続しました")
     else:
         await ctx.voice_client.move_to(channel)
-        print("[DEBUG] Bot moved to voice channel")
 
     async with ctx.typing():
         result = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
         if isinstance(result, list):
-            # プレイリストの場合
-            print(f"\n[DEBUG] Playlist detected! Found {len(result)} songs:")
-            for song in result:
+            print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
+            for i, song in enumerate(result, 1):
                 song_info = {
                     'url': song['webpage_url'],
                     'title': song['title'],
                     'requester': ctx.author
                 }
                 bot.queue.append(song_info)
-                print(f"[DEBUG] Added to queue: {song['title']}")
+                print(f"[PLAYLIST] {i}. {song['title']}")
+            
+            print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
         else:
-            # 単曲の場合
-            print("\n[DEBUG] Single song detected!")
+            print("\n[PLAYLIST] 単曲を検出")
             song_info = {
                 'url': url,
                 'title': result.title,
                 'requester': ctx.author
             }
             bot.queue.append(song_info)
-            print(f"[DEBUG] Added to queue: {result.title}")
-
-        await ctx.send(f'キューに追加しました: {len(result) if isinstance(result, list) else "1"} 曲')
+            print(f"[PLAYLIST] 追加: {result.title}")
 
     if not bot.is_playing:
-        print("[DEBUG] Starting playback")
+        print("[PLAYLIST] 再生を開始します")
         await bot.play_next(ctx)
 
-    if not bot.is_playing:
-        await bot.play_next(ctx)
 
 @bot.command(name='skip')
 async def skip(ctx):
     if ctx.voice_client:
+        # 現在の再生を停止
         ctx.voice_client.stop()
-        await ctx.send("スキップしました")
+        
+        # 少し待機して確実に停止させる
+        await asyncio.sleep(0.5)
+        
+        # 次の曲を再生
         await bot.play_next(ctx)
+        await ctx.send("スキップしました")
+    else:
+        await ctx.send("再生中の曲がありません")
+
 
 @bot.command(name='pause')
 async def pause(ctx):
