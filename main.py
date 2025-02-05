@@ -74,33 +74,34 @@ class YTDLSource(discord.PCMVolumeTransformer):
     async def play_next(self, ctx):
         if len(self.queue) > 0:
             self.is_playing = True
-            self.current_song = self.queue.popleft()
-
+            self.current_song = self.queue[0]  # まだキューから削除しない
+            
             try:
                 print(f"[DEBUG] 次の曲を再生準備中: {self.current_song['title']}")
                 player = await YTDLSource.from_url(self.current_song['url'], loop=self.loop, stream=True)
                 
                 if isinstance(player, list):
-                    # プレイリストの場合
                     first_song = player[0]
                     audio = discord.FFmpegPCMAudio(first_song['url'], **ffmpeg_options)
                 else:
-                    # 単曲の場合
                     audio = player
 
-                ctx.voice_client.play(
-                    audio, 
-                    after=lambda e: self.loop.create_task(self.play_next(ctx))
-                )
+                def after_playing(error):
+                    if error:
+                        print(f"[ERROR] 再生エラー: {str(error)}")
+                    self.loop.create_task(self.play_next(ctx))
+
+                ctx.voice_client.play(audio, after=after_playing)
+                self.queue.popleft()  # 再生開始後にキューから削除
+                
                 print(f"[DEBUG] 再生開始: {self.current_song['title']}")
 
                 if self.repeat:
                     self.queue.append(self.current_song)
-                
-                await ctx.send(f'再生中: {self.current_song["title"]}')
             
             except Exception as e:
                 print(f"[ERROR] 再生エラー: {str(e)}")
+                self.queue.popleft()  # エラー時もキューから削除
                 await self.play_next(ctx)
         else:
             self.is_playing = False
@@ -108,9 +109,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 class MusicBot(commands.Bot):
     def __init__(self):
-        # 既存のコードに追加
-        self.song_cache = {}  # URLをキーとしたキャッシュ
-        
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(command_prefix='!', intents=intents)
@@ -119,39 +117,51 @@ class MusicBot(commands.Bot):
         self.is_paused = False
         self.repeat = False
         self.current_song = None
+        self.play_lock = asyncio.Lock()  # 追加: 同期制御用のロック
 
-    async def get_song_info(self, url):
-        if url in self.song_cache:
-            return self.song_cache[url]
-        # 新規取得の場合
-        info = await YTDLSource.from_url(url, loop=self.loop)
-        self.song_cache[url] = info
-        return info
-    
     async def play_next(self, ctx):
-        if len(self.queue) > 0:
-            self.is_playing = True
-            self.current_song = self.queue.popleft()
+        async with self.play_lock:  # ロックを使用
+            if len(self.queue) > 0:
+                try:
+                    # 現在の再生を確実に停止
+                    if ctx.voice_client and ctx.voice_client.is_playing():
+                        ctx.voice_client.stop()
+                        await asyncio.sleep(0.5)
 
-            async with ctx.typing():
-                player = await YTDLSource.from_url(self.current_song['url'], loop=self.loop, stream=True)
-                if isinstance(player, list):
-                    # プレイリストの場合は最初の曲を再生
-                    first_song = player[0]
-                    filename = first_song['url']
-                    ctx.voice_client.play(discord.FFmpegPCMAudio(filename, **ffmpeg_options), 
-                                        after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.loop))
-                else:
-                    # 単曲の場合
-                    ctx.voice_client.play(player, 
-                                        after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.loop))
+                    if not ctx.voice_client:
+                        return
 
-            if self.repeat:
-                self.queue.append(self.current_song)
-            
-            await ctx.send(f'再生中: {self.current_song["title"]}')
-        else:
-            self.is_playing = False
+                    self.current_song = self.queue.popleft()
+                    print(f"[DEBUG] 再生準備中: {self.current_song['title']}")
+
+                    player = await YTDLSource.from_url(self.current_song['url'], loop=self.loop, stream=True)
+                    self.is_playing = True
+
+                    if isinstance(player, list):
+                        first_song = player[0]
+                        audio = discord.FFmpegPCMAudio(first_song['url'], **ffmpeg_options)
+                    else:
+                        audio = player
+
+                    def after_playing(error):
+                        if error:
+                            print(f"[ERROR] 再生エラー: {str(error)}")
+                        asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.loop)
+
+                    ctx.voice_client.play(audio, after=after_playing)
+                    print(f"[DEBUG] 再生開始: {self.current_song['title']}")
+
+                    if self.repeat:
+                        self.queue.append(self.current_song)
+
+                    await ctx.send(f'🎵 再生中: {self.current_song["title"]}')
+
+                except Exception as e:
+                    print(f"[ERROR] 再生エラー: {str(e)}")
+                    await self.play_next(ctx)
+            else:
+                self.is_playing = False
+                self.current_song = None
 
 bot = MusicBot()
 
@@ -205,22 +215,61 @@ async def play(ctx, url):
     # プレイリスト処理を非同期で開始
     asyncio.create_task(process_playlist())
 
-
-
 @bot.command(name='skip')
 async def skip(ctx):
     if ctx.voice_client:
-        # 現在の再生を停止
-        ctx.voice_client.stop()
-        
-        # 少し待機して確実に停止させる
-        await asyncio.sleep(0.5)
-        
-        # 次の曲を再生
-        await bot.play_next(ctx)
-        await ctx.send("スキップしました")
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
+            await ctx.send("スキップしました")
     else:
         await ctx.send("再生中の曲がありません")
+
+async def play_next(self, ctx):
+    # スキップ処理中は重複実行を防ぐ
+    if hasattr(self, 'skip_in_progress') and self.skip_in_progress:
+        return
+
+    if len(self.queue) > 0:
+        try:
+            self.current_song = self.queue[0]
+            print(f"[DEBUG] 再生準備中: {self.current_song['title']}")
+
+            player = await YTDLSource.from_url(self.current_song['url'], loop=self.loop, stream=True)
+            
+            # 再生前に現在の状態をチェック
+            if ctx.voice_client and ctx.voice_client.is_playing():
+                return
+            
+            self.is_playing = True
+            if isinstance(player, list):
+                first_song = player[0]
+                audio = discord.FFmpegPCMAudio(first_song['url'], **ffmpeg_options)
+            else:
+                audio = player
+
+            def after_playing(error):
+                if error:
+                    print(f"[ERROR] 再生エラー: {str(error)}")
+                if not self.skip_in_progress:
+                    asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.loop)
+
+            ctx.voice_client.play(audio, after=after_playing)
+            self.queue.popleft()
+            
+            print(f"[DEBUG] 再生開始: {self.current_song['title']}")
+
+            if self.repeat:
+                self.queue.append(self.current_song)
+            
+            await ctx.send(f'🎵 再生中: {self.current_song["title"]}')
+            
+        except Exception as e:
+            print(f"[ERROR] 再生エラー: {str(e)}")
+            self.queue.popleft()
+    else:
+        self.is_playing = False
+        self.current_song = None
+
 
 
 @bot.command(name='pause')
