@@ -33,6 +33,12 @@ YTDL_OPTIONS = {
     'geo_bypass': True,                 # 地域制限をバイパス
     'proxy': '',                        # 必要に応じてプロキシを設定可能
     'allow_playlist_files': True,
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'user_agent': 'Mozilla/5.0',
     'cookiefile': 'youtube.cookies'  # クッキーファイルの使用
 }
 
