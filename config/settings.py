@@ -36,10 +36,8 @@ YTDL_OPTIONS = {
     'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
     'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
     'verbose': True,                    # より詳細な情報を表示
-    'socket_timeout': 30,
-    'retries': 10,
-    'fragment_retries': 10,
     'hls_prefer_native': True,
+    'skip_download': True               # ダウンロードをスキップしてストリーミングのみに
 }
 
 # FFmpeg用の音声処理オプション
