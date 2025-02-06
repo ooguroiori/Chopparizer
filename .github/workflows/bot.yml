@@ -18,8 +18,15 @@ jobs:
           
       - name: Create Cookie File
         run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
-          chmod 600 youtube.cookies  # セキュリティ設定を追加
+          cat << 'EOL' > youtube.cookies
+          # Netscape HTTP Cookie File
+          # https://curl.haxx.se/rfc/cookie_spec.html
+          # This is a generated file!  Do not edit.
+          
+          .youtube.com	TRUE	/	TRUE	2147483647	VISITOR_INFO1_LIVE	${{ secrets.VISITOR_INFO1_LIVE }}
+          .youtube.com	TRUE	/	TRUE	2147483647	LOGIN_INFO	${{ secrets.LOGIN_INFO }}
+          EOL
+          chmod 600 youtube.cookies
           
       - name: Install dependencies
         run: |
