@@ -1,8 +1,8 @@
 name: Discord Bot Running
 
 on:
-  workflow_dispatch:  # 手動実行のみに変更
-  push:              # コードの更新時に自動実行
+  workflow_dispatch:
+  push:
 
 jobs:
   run-bot:
@@ -19,6 +19,7 @@ jobs:
       - name: Create Cookie File
         run: |
           echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
+          chmod 600 youtube.cookies  # セキュリティ設定を追加
           
       - name: Install dependencies
         run: |
