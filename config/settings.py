@@ -31,7 +31,7 @@ YTDL_OPTIONS = {
     'prefer-insecure': True,            # 非セキュアな接続を許可
     'no-check-formats': True,           # フォーマットチェックをスキップ
     'geo_bypass': True,                 # 地域制限をバイパス
-    'proxy': '',                        # 必要に応じてプロキシを設定可能
+    'proxy': 'socks5://jp-proxy.example.com:1080',  # 日本のプロキシを指定
     'allow_playlist_files': True,
     'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
     'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
