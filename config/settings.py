@@ -13,7 +13,7 @@ YTDL_OPTIONS = {
     'format': 'bestaudio',              # 最高音質のオーディオを選択
     'extractaudio': True,               # 音声のみを抽出
     'audioformat': 'mp3',               # MP3形式で出力
-    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',  # 出力ファイル名の形式
+    'outtmpl': '%(title)s.%(ext)s',    # 出力ファイル名のテンプレート
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
     'noplaylist': False,                # プレイリストの処理を許可
     'nocheckcertificate': True,         # SSL証明書チェックを無効化
@@ -31,13 +31,9 @@ YTDL_OPTIONS = {
     'prefer-insecure': True,            # 非セキュアな接続を許可
     'no-check-formats': True,           # フォーマットチェックをスキップ
     'geo_bypass': True,                 # 地域制限をバイパス
-    'proxy': 'socks5://jp-proxy.example.com:1080',  # 日本のプロキシを指定
+    'proxy': '',                        # 必要に応じてプロキシを設定可能
     'allow_playlist_files': True,
-    'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
-    'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
-    'verbose': True,                    # より詳細な情報を表示
-    'hls_prefer_native': True,
-    'skip_download': True               # ダウンロードをスキップしてストリーミングのみに
+    'cookiefile': 'youtube.cookies'  # クッキーファイルの使用
 }
 
 # FFmpeg用の音声処理オプション
