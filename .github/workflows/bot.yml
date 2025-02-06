@@ -1,13 +1,13 @@
-name: Discord Bot 24/7
+name: Discord Bot Running
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # 5分ごとに実行
-  workflow_dispatch:        # 手動実行も可能
+  workflow_dispatch:  # 手動実行のみに変更
+  push:              # コードの更新時に自動実行
 
 jobs:
-  keep-alive:
+  run-bot:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v2
       
