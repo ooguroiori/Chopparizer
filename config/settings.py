@@ -10,33 +10,28 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
-    'format': 'bestaudio',              # 最高音質のオーディオを選択
-    'extractaudio': True,               # 音声のみを抽出
-    'audioformat': 'mp3',               # MP3形式で出力
-    'outtmpl': '%(title)s.%(ext)s',    # 出力ファイル名のテンプレート
-    'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
-    'noplaylist': False,                # プレイリストの処理を許可
-    'nocheckcertificate': True,         # SSL証明書チェックを無効化
-    'ignoreerrors': True,               # エラーを無視して続行
-    'logtostderr': False,               # 標準エラー出力へのログ出力を無効化
-    'quiet': True,                      # 詳細な出力を抑制
-    'no_warnings': True,                # 警告メッセージを抑制
-    'default_search': 'auto',           # 検索モードを自動に設定
-    'source_address': '0.0.0.0',        # 接続元IPアドレス
-    'extract_flat': 'in_playlist',      # プレイリスト展開モード
-    'force-ipv4': True,                 # IPv4の使用を強制
-    'buffer-size': 32768,               # バッファサイズを32KBに設定
-    'concurrent-fragments': 5,          # 同時ダウンロードの最大数
-    'postprocessor-args': ['-threads', '4'],  # 後処理用のスレッド数
-    'prefer-insecure': True,            # 非セキュアな接続を許可
-    'no-check-formats': True,           # フォーマットチェックをスキップ
-    'geo_bypass': True,                 # 地域制限をバイパス
-    'proxy': '',                        # 必要に応じてプロキシを設定可能
-    'allow_playlist_files': True,
-    'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
-    'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
-    'verbose': True                     # より詳細な情報を表示
-
+    'format': 'bestaudio/best',      # 最高品質の音声を優先
+    'extractaudio': True,            # 音声の抽出を有効化
+    'audioformat': 'mp3',            # MP3形式で出力
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',  # 出力ファイル名の形式
+    'restrictfilenames': True,       # ファイル名を安全に制限
+    'noplaylist': False,             # プレイリストの処理を許可
+    'nocheckcertificate': True,      # 証明書チェックをスキップ
+    'ignoreerrors': False,           # エラーを表示（デバッグ用）
+    'logtostderr': False,            # 標準エラー出力にログを出力
+    'quiet': False,                  # 詳細なログを表示
+    'no_warnings': False,            # 警告メッセージを表示
+    'default_search': 'auto',        # 検索モードを自動に設定
+    'source_address': '0.0.0.0',     # 送信元アドレスを設定
+    'force-ipv4': True,              # IPv4を強制使用
+    'geo_bypass': True,              # 地域制限をバイパス
+    'geo_bypass_country': 'JP',      # 日本からのアクセスとして処理
+    'verbose': True,                 # 詳細な情報を表示
+    'extract_flat': True,            # フラット抽出を有効化
+    'socket_timeout': 30,            # ソケットタイムアウトを30秒に設定
+    'retries': 10,                   # 再試行回数を10回に設定
+    'fragment_retries': 10,          # フラグメント再試行も10回に設定
+    'hls_prefer_native': True        # ネイティブHLSプレーヤーを優先
 }
 
 # FFmpeg用の音声処理オプション
