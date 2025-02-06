@@ -17,6 +17,7 @@ class Music(commands.Cog):
         self.repeat = False              # リピート状態
         self.current_song = None         # 現在再生中の曲
         self.play_lock = asyncio.Lock()  # 同期制御用ロック
+        self.repeat_queue = deque()      # リピート用のキューを追加
 
     # 次の曲を再生する非同期関数
     async def play_next(self, ctx):
@@ -31,6 +32,10 @@ class Music(commands.Cog):
                     # ボイスクライアント確認
                     if not ctx.voice_client:
                         return
+                    
+                    # リピートモードが有効な場合、現在の曲をキューの最後に追加
+                    if self.repeat and self.current_song:
+                        self.queue.append(self.current_song)
 
                     # キューから次の曲を取得
                     self.current_song = self.queue.popleft()
