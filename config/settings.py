@@ -36,13 +36,10 @@ YTDL_OPTIONS = {
     'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
     'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
     'verbose': True,                    # より詳細な情報を表示
-    # 'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
-    # 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # ユーザーエージェントを設定
-    # 'http_headers': {
-    #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    #     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    #     'Accept-Language': 'ja,en-US;q=0.7,en;q=0.3',
-    # }
+    'socket_timeout': 30,
+    'retries': 10,
+    'fragment_retries': 10,
+    'hls_prefer_native': True,
 }
 
 # FFmpeg用の音声処理オプション
