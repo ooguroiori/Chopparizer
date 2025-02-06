@@ -36,7 +36,6 @@ YTDL_OPTIONS = {
     'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
     'geo_bypass_country': 'JP',         # 日本からのアクセスに設定
     'verbose': True,                    # より詳細な情報を表示
-    'cookiefile': 'youtube.cookies',    # Cookieファイルのパス
     'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # ユーザーエージェントを設定
     'http_headers': {
