@@ -20,8 +20,8 @@ jobs:
           
       - name: Create Cookie File
         run: |
-          printf "%s" "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
-          chmod 600 youtube.cookies  # セキュリティ設定を追加
+          echo "${{ secrets.YOUTUBE_COOKIES }}" | base64 --decode > youtube.cookies
+          chmod 600 youtube.cookies
 
       - name: Debug Cookie File
         run: |
