@@ -25,8 +25,8 @@ jobs:
 
       - name: Debug Cookie File
         run: |
-          ls -lah youtube.cookies  # クッキーファイルが作成されているか確認
-          head -n 5 youtube.cookies  # クッキーの最初の5行を表示（重要な情報は漏れないように）
+          ls -lah youtube.cookies  # クッキーファイルが存在するか確認
+          wc -l youtube.cookies  # クッキーファイルの行数を表示
           
       - name: Install dependencies
         run: |
