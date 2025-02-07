@@ -22,6 +22,11 @@ jobs:
         run: |
           printf "%s" "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
           chmod 600 youtube.cookies  # セキュリティ設定を追加
+
+      - name: Debug Cookie File
+        run: |
+          ls -lah youtube.cookies  # クッキーファイルが作成されているか確認
+          head -n 5 youtube.cookies  # クッキーの最初の5行を表示（重要な情報は漏れないように）
           
       - name: Install dependencies
         run: |

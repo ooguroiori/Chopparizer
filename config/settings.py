@@ -31,6 +31,7 @@ YTDL_OPTIONS = {
     'prefer-insecure': True,            # 非セキュアな接続を許可
     'no-check-formats': True,           # フォーマットチェックをスキップ
     'geo_bypass': True,                 # 地域制限をバイパス
+    'geo_bypass_country': 'JP',         # 日本のIPをシミュレート
     'proxy': '',                        # 必要に応じてプロキシを設定可能
     'allow_playlist_files': True,
     'postprocessors': [{
@@ -39,7 +40,7 @@ YTDL_OPTIONS = {
         'preferredquality': '192',
     }],
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'cookiefile': os.path.abspath('youtube.cookies'),  # フルパスで指定 クッキーファイルの使用
+    'cookiefile': 'youtube.cookies',  # フルパスで指定 クッキーファイルの使用
 }
 
 # FFmpeg用の音声処理オプション
