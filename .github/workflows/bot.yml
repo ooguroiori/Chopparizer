@@ -3,6 +3,8 @@ name: Discord Bot Running
 on:
   workflow_dispatch:
   push:
+  schedule:
+    - cron: '0 */6 * * *'  # 6時間ごとに実行 6時間なのはgithub Actionsのジョブ時間制限が6時間だから
 
 jobs:
   run-bot:
