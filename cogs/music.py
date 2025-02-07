@@ -22,16 +22,12 @@ class Music(commands.Cog):
     # 次の曲を再生する非同期関数
     async def play_next(self, ctx):
         async with self.play_lock:  # ロックで排他制御
-            if self.is_playing:
-                await ctx.send("現在再生中の曲があります。完了までお待ちください")
-                return
-            
             if len(self.queue) > 0:
                 try:
                     # 現在再生中の曲を停止
                     if ctx.voice_client and ctx.voice_client.is_playing():
                         ctx.voice_client.stop()
-                        await asyncio.sleep(0.5)
+                        await asyncio.sleep(0.5)  # 安定性のための短い待機
 
                     # ボイスクライアント確認
                     if not ctx.voice_client:
@@ -49,7 +45,7 @@ class Music(commands.Cog):
                     player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
                     self.is_playing = True
 
-                    # プレイリストか単曲かを判定
+                    # プレイリストか単曲か判定
                     if isinstance(player, list):
                         first_song = player[0]
                         audio = discord.FFmpegPCMAudio(first_song['url'], **FFMPEG_OPTIONS)
@@ -60,6 +56,7 @@ class Music(commands.Cog):
                     def after_playing(error):
                         if error:
                             print(f"[ERROR] 再生エラー: {str(error)}")
+                        self.is_playing = False  # 再生状態をリセット
                         asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
 
                     # 音声の再生を開始
@@ -69,14 +66,15 @@ class Music(commands.Cog):
                     # リピート設定の場合はキューに追加
                     if self.repeat:
                         self.queue.append(self.current_song)
-
                     # 再生開始メッセージを送信
                     await ctx.send(f'🎵 再生中: {self.current_song["title"]}')
 
                 except Exception as e:
                     print(f"[ERROR] 再生エラー: {str(e)}")
+                    self.is_playing = False
                     await self.play_next(ctx)
             else:
+                # キューが空の場合の処理
                 self.is_playing = False
                 self.current_song = None
 
@@ -140,8 +138,10 @@ class Music(commands.Cog):
     async def skip(self, ctx):
         if ctx.voice_client:
             if ctx.voice_client.is_playing():
-                ctx.voice_client.stop()
+                self.is_playing = False  # 再生状態をリセット
+                ctx.voice_client.stop()  # 現在の再生を停止
                 await ctx.send("スキップしました")
+                await self.play_next(ctx)  # 次の曲を再生開始
         else:
             await ctx.send("再生中の曲がありません")
 
