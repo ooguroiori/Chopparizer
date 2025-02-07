@@ -38,8 +38,8 @@ YTDL_OPTIONS = {
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
-    'user_agent': 'Mozilla/5.0',
-    'cookiefile': 'youtube.cookies'  # クッキーファイルの使用
+    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'cookiefile': os.path.abspath('youtube.cookies'),  # フルパスで指定 クッキーファイルの使用
 }
 
 # FFmpeg用の音声処理オプション
