@@ -12,6 +12,8 @@ PASSWORD = os.getenv('USER_PASSWORD')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
+    'username': NAME,                   # ユーザー名
+    'password': PASSWORD,               # パスワード
     'format': 'bestaudio',              # 最高音質のオーディオを選択
     'extractaudio': True,               # 音声のみを抽出
     'audioformat': 'mp3',               # MP3形式で出力
