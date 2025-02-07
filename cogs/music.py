@@ -21,7 +21,11 @@ class Music(commands.Cog):
 
     # 次の曲を再生する非同期関数
     async def play_next(self, ctx):
-        async with self.play_lock:  # 同期制御開始
+        async with self.lock:  # ロックで排他制御
+            if self.is_playing:
+                await ctx.send("現在再生中の曲があります。完了までお待ちください")
+                return
+            
             if len(self.queue) > 0:
                 try:
                     # 現在再生中の曲を停止
