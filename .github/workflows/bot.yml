@@ -37,8 +37,8 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Test yt-dlp with Cookie
-        run: yt-dlp --cookies youtube.cookies -F "dKKiyojdEkU"
+      - name: Test yt-dlp with Verbose Logging
+        run: yt-dlp --cookies youtube.cookies --geo-bypass --verbose "dKKiyojdEkU"
 
       - name: Run Bot
         env:
