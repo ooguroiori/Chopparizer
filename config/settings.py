@@ -9,16 +9,28 @@ load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 NAME = os.getenv('USER_NAME')
 PASSWORD = os.getenv('USER_PASSWORD')
-COOKIE = os.getenv('YOUTUBE_COOKIES')
+# COOKIE = os.getenv('YOUTUBE_COOKIES')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
+    # 認証関連
     'username': NAME,                   # ユーザー名
     'password': PASSWORD,               # パスワード
+    'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
+
+    # 基本設定
     'format': 'bestaudio',              # 最高音質のオーディオを選択
     'extractaudio': True,               # 音声のみを抽出
     'audioformat': 'mp3',               # MP3形式で出力
     'outtmpl': '%(title)s.%(ext)s',    # 出力ファイル名のテンプレート
+
+    # 地域とネットワーク設定
+    'geo_bypass': True,                 # 地域制限をバイパス
+    'geo_bypass_country': 'JP',         # 日本のIPをシミュレート
+    'proxy': '',                        # 必要に応じてプロキシを設定可能
+    'force-ipv4': True,                 # IPv4の使用を強制
+    'source_address': '0.0.0.0',        # 接続元IPアドレス
+    
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
     'noplaylist': False,                # プレイリストの処理を許可
     'nocheckcertificate': True,         # SSL証明書チェックを無効化
@@ -27,25 +39,19 @@ YTDL_OPTIONS = {
     'quiet': True,                      # 詳細な出力を抑制
     'no_warnings': True,                # 警告メッセージを抑制
     'default_search': 'auto',           # 検索モードを自動に設定
-    'source_address': '0.0.0.0',        # 接続元IPアドレス
     'extract_flat': 'in_playlist',      # プレイリスト展開モード
-    'force-ipv4': True,                 # IPv4の使用を強制
     'buffer-size': 32768,               # バッファサイズを32KBに設定
     'concurrent-fragments': 5,          # 同時ダウンロードの最大数
     'postprocessor-args': ['-threads', '4'],  # 後処理用のスレッド数
     'prefer-insecure': True,            # 非セキュアな接続を許可
     'no-check-formats': True,           # フォーマットチェックをスキップ
-    'geo_bypass': True,                 # 地域制限をバイパス
-    'geo_bypass_country': 'JP',         # 日本のIPをシミュレート
-    'proxy': '',                        # 必要に応じてプロキシを設定可能
-    'cookiefile': COOKIE,  # クッキーファイルの使用
     'allow_playlist_files': True,
+    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
-    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
 }
 
 # FFmpeg用の音声処理オプション
