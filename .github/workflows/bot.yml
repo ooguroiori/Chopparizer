@@ -20,13 +20,8 @@ jobs:
           
       - name: Create Cookie File
         run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" | tr -d '\r\n' | base64 --decode > youtube.cookies
-          chmod 600 youtube.cookies
-
-      - name: Debug Cookie File
-        run: |
-          ls -lah youtube.cookies  # クッキーファイルが存在するか確認
-          wc -l youtube.cookies  # クッキーファイルの行数を表示
+          echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
+          chmod 600 youtube.cookies  # セキュリティ設定を追加
           
       - name: Install dependencies
         run: |
@@ -37,10 +32,11 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Test yt-dlp with Verbose Logging
-        run: yt-dlp --cookies youtube.cookies --geo-bypass --verbose "dKKiyojdEkU"
-
       - name: Run Bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+
         run: python main.py

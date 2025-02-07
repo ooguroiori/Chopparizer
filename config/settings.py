@@ -7,6 +7,8 @@ load_dotenv()
 
 # Discordボットのトークンを環境変数から取得
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+NAME = os.getenv('USER_NAME')
+PASSWORD = os.getenv('USER_PASSWORD')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
