@@ -27,6 +27,9 @@ jobs:
         run: |
           ls -lah youtube.cookies  # クッキーファイルが存在するか確認
           wc -l youtube.cookies  # クッキーファイルの行数を表示
+
+      - name: Test yt-dlp with Cookie
+        run: yt-dlp --cookies youtube.cookies -F "dKKiyojdEkU"
           
       - name: Install dependencies
         run: |
