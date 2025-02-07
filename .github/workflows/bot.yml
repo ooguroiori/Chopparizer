@@ -20,7 +20,7 @@ jobs:
           
       - name: Create Cookie File
         run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" | base64 --decode > youtube.cookies
+          echo "${{ secrets.YOUTUBE_COOKIES }}" | tr -d '\r\n' | base64 --decode > youtube.cookies
           chmod 600 youtube.cookies
 
       - name: Debug Cookie File
