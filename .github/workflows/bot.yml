@@ -40,6 +40,12 @@ jobs:
           sudo apt update
           sudo apt install cloudflare-warp
 
+      #5秒のスリープでWARPの起動待ち
+      - name: Start WARP daemon
+        run: |
+          sudo systemctl start warp-svc
+          sleep 5
+
       #WARPの起動とSOCKS5プロキシモードで起動
       - name: Start WARP in SOCKS proxy mode
         run: |
