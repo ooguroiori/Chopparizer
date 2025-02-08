@@ -50,7 +50,7 @@ jobs:
       - name: Start WARP in SOCKS proxy mode
         run: |
           warp-cli --accept-tos registration new
-          warp-cli set-mode proxy
+          warp-cli mode proxy
           warp-cli connect
           warp-cli enable-proxy
 
