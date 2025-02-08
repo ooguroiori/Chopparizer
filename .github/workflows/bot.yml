@@ -61,9 +61,9 @@ jobs:
           sleep 10
           warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
           sleep 10
-          warp-cli proxy --help
+          warp-cli --accept-tos proxy port 40000
           warp-cli --accept-tos status
-          netstat -tulpn | grep 40000
+          sudo netstat -tulpn | grep 40000
 
       - name: Verify WARP connection
         run: |
