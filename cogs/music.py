@@ -32,7 +32,19 @@ class Music(commands.Cog):
                     # ボイスクライアント確認
                     if not ctx.voice_client:
                         return
+                    self.current_song = self.queue.popleft()
+                    try:
+                        player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
+                        if player is None or "Video unavailable" in str(player):
+                            await ctx.send(f"🚫 {self.current_song['title']}は再生できないためスキップします")
+                            await self.play_next(ctx)  # 次の曲へ
+                            return
+                    except Exception as e:
+                        print(f"[ERROR] プレイヤーの初期化エラー: {str(e)}")
+                        await ctx.send(f"🚫 {self.current_song['title']}の再生中にエラーが発生しました")
+                        await self.play_next(ctx)
                     
+                    self.is_playing = True
                     # リピートモードが有効な場合、現在の曲をキューの最後に追加
                     if self.repeat and self.current_song:
                         self.queue.append(self.current_song)
