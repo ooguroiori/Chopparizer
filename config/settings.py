@@ -52,6 +52,11 @@ YTDL_OPTIONS = {
         'preferredcodec': 'mp3',
         'preferredquality': '192',
     }],
+    'extractor_args': {
+        'youtubetab': {
+            'skip': ['authcheck']  # 認証チェックをスキップ
+        }
+    },
 }
 
 # FFmpeg用の音声処理オプション
