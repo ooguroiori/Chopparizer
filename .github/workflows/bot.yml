@@ -35,20 +35,23 @@ jobs:
       #WARPの導入
       - name: Install Cloudflare WARP
         run: |
-          sudo rm -f /etc/apt/sources.list.d/cloudflare-warp.list
-          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo tee /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg >/dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-warp.list > /dev/null
-          cat /etc/apt/sources.list.d/cloudflare-warp.list
-          sudo apt update && sudo apt install -y cloudflare-warp
+          curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt update
+          sudo apt install cloudflare-warp
 
       #WARPの起動とSOCKS5プロキシモードで起動
-      - name: Start Cloudflare WARP Proxy
+      - name: Start WARP in SOCKS proxy mode
         run: |
           warp-cli register
-          warp-cli connect
           warp-cli set-mode proxy
-          warp-cli set-proxy-port 40000
-          warp-cli enable-always-on
+          warp-cli connect
+          warp-cli enable-proxy
+
+      #接続確認
+      - name: Verify WARP connection
+        run: |
+          curl -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
 
       - name: Run Bot
         env:
