@@ -55,14 +55,8 @@ jobs:
         run: |
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
+          warp-cli --accept-tos location jp
           warp-cli --accept-tos connect
-          sleep 5
-          warp-cli status
-
-      #接続確認
-      - name: Verify WARP connection
-        run: |
-          curl -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
 
       - name: Run Bot
         env:
