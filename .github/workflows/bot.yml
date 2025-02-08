@@ -60,7 +60,7 @@ jobs:
 
       - name: Verify WARP connection
         run: |
-          curl -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
+          curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
 
       - name: Run Bot
         env:
