@@ -21,7 +21,7 @@ jobs:
       - name: Create Cookie File
         run: |
           echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
-          chmod 600 youtube.cookies  # セキュリティ設定を追加
+          chmod 600 youtube.cookies
           
       - name: Install dependencies
         run: |
@@ -36,10 +36,8 @@ jobs:
       - name: Install Cloudflare WARP
         run: |
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo tee /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg >/dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/$(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
           sudo apt update && sudo apt install -y cloudflare-warp
-          warp-cli register
-          warp-cli connect
 
       #WARPの起動とSOCKS5プロキシモードで起動
       - name: Start Cloudflare WARP Proxy
@@ -47,7 +45,7 @@ jobs:
           warp-cli register
           warp-cli connect
           warp-cli set-mode proxy
-          warp-cli set-proxy-port 40000  # ポート40000でプロキシを開く
+          warp-cli set-proxy-port 40000
           warp-cli enable-always-on
 
       - name: Run Bot
