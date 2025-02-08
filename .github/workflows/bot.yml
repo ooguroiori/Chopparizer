@@ -53,18 +53,21 @@ jobs:
       #WARPの起動とSOCKS5プロキシモードで起動
       - name: Start WARP in SOCKS proxy mode
         run: |
+          sudo systemctl restart warp-svc
+          sleep 5
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
           warp-cli --accept-tos connect
           sleep 10
           warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
           sleep 10
-          warp-cli --accept-tos proxy port 40000
+          netstat -tulpn | grep LISTEN
           warp-cli --accept-tos status
 
       - name: Verify WARP connection
         run: |
           curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
+
 
       - name: Run Bot
         env:
