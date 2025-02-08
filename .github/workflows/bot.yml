@@ -35,8 +35,9 @@ jobs:
       #WARPの導入
       - name: Install Cloudflare WARP
         run: |
+          sudo rm -f /etc/apt/sources.list.d/cloudflare-warp.list
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo tee /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg >/dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-warp.list
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-warp.list > /dev/null
           cat /etc/apt/sources.list.d/cloudflare-warp.list
           sudo apt update && sudo apt install -y cloudflare-warp
 
