@@ -58,6 +58,7 @@ jobs:
           warp-cli --accept-tos connect
           sleep 10
           warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
+          warp-cli --accept-tos status
           sudo lsof -i :40000
           ps aux | grep warp
 
