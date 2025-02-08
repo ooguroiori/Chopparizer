@@ -58,19 +58,23 @@ jobs:
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
           warp-cli --accept-tos connect
-          sleep 15
-          warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
-          sleep 15
+          sleep 10
+          # 接続状態を確認
+          warp-cli --accept-tos status
+          # デバッグ情報を取得
+          warp-cli --accept-tos debug network
+          # トンネル情報を確認
+          warp-cli --accept-tos tunnel stats
+          # プロキシポートを設定
           warp-cli --accept-tos proxy port 40000
-          sleep 20
+          # 最終状態を確認
           warp-cli --accept-tos status
           sudo netstat -tulpn | grep 40000
-          curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
-
 
       - name: Verify WARP connection
         run: |
           curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
+
 
 
 
