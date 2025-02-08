@@ -21,7 +21,7 @@ jobs:
       - name: Create Cookie File
         run: |
           echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
-          chmod 600 youtube.cookies  # セキュリティ設定を追加
+          chmod 600 youtube.cookies
           
       - name: Install dependencies
         run: |
@@ -32,7 +32,45 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
 
+      #WARPの導入
+      - name: Install Cloudflare WARP
+        run: |
+          curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt update
+          sudo apt install cloudflare-warp
+
+      - name: Check proxy commands
+        run: |
+          warp-cli proxy --help
+
+      #5秒のスリープでWARPの起動待ち
+      - name: Start WARP daemon
+        run: |
+          sudo systemctl start warp-svc
+          sleep 5
+
+      #WARPの起動とSOCKS5プロキシモードで起動
+      #warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
+      - name: Start WARP in SOCKS proxy mode
+        run: |
+          warp-cli --accept-tos registration new
+          warp-cli --accept-tos mode proxy
+          warp-cli --accept-tos connect
+          sleep 10
+          warp-cli --accept-tos status
+          sudo lsof -i :40000
+          ps aux | grep warp
+
+      - name: Verify WARP connection
+        run: |
+          curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
+
       - name: Run Bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+
         run: python main.py
