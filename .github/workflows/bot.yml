@@ -40,10 +40,6 @@ jobs:
           sudo apt update
           sudo apt install cloudflare-warp
 
-      - name: Check proxy commands
-        run: |
-          warp-cli proxy --help
-
       #5秒のスリープでWARPの起動待ち
       - name: Start WARP daemon
         run: |
