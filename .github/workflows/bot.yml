@@ -55,7 +55,7 @@ jobs:
         run: |
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
-          warp-cli --accept-tos tunnel endpoint 162.159.192.1:2408
+          warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
           warp-cli --accept-tos connect
 
       - name: Run Bot
