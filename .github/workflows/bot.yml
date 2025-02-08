@@ -52,7 +52,7 @@ jobs:
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
           warp-cli --accept-tos connect
-          warp-cli --accept-tos enable-proxy
+          warp-cli --accept-tos proxy enable
 
       #接続確認
       - name: Verify WARP connection
