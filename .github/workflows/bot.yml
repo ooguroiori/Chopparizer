@@ -59,15 +59,11 @@ jobs:
           warp-cli --accept-tos mode proxy
           warp-cli --accept-tos connect
           sleep 10
+          warp-cli --accept-tos settings location jp
+          sleep 10
           # 接続状態を確認
           warp-cli --accept-tos status
-          # デバッグ情報を取得
-          warp-cli --accept-tos debug network
-          # トンネル情報を確認
-          warp-cli --accept-tos tunnel stats
-          # プロキシポートを設定
           warp-cli --accept-tos proxy port 40000
-          # 最終状態を確認
           warp-cli --accept-tos status
           sudo netstat -tulpn | grep 40000
 
