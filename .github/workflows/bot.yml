@@ -51,13 +51,12 @@ jobs:
           sleep 5
 
       #WARPの起動とSOCKS5プロキシモードで起動
+      #warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
       - name: Start WARP in SOCKS proxy mode
         run: |
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
-          warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
           warp-cli --accept-tos connect
-          warp-cli --accept-tos enable
           sleep 10
           warp-cli status
           sudo lsof -i :40000
