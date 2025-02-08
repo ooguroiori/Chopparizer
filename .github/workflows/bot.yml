@@ -58,10 +58,8 @@ jobs:
           warp-cli --accept-tos connect
           sleep 10
           warp-cli --accept-tos tunnel endpoint set 162.159.192.1:2408
-          sleep 5
+          sleep 10
           warp-cli --accept-tos status
-          sudo lsof -i :40000
-          ps aux | grep warp
 
       - name: Verify WARP connection
         run: |
