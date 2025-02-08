@@ -49,6 +49,7 @@ jobs:
       #WARPの起動とSOCKS5プロキシモードで起動
       - name: Start WARP in SOCKS proxy mode
         run: |
+          warp-cli accept-tos
           yes | warp-cli registration new
           warp-cli set-mode proxy
           warp-cli connect
