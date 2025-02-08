@@ -40,6 +40,10 @@ jobs:
           sudo apt update
           sudo apt install cloudflare-warp
 
+      - name: Check WARP commands
+        run: |
+          warp-cli --help
+
       #5秒のスリープでWARPの起動待ち
       - name: Start WARP daemon
         run: |
