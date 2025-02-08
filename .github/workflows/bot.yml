@@ -36,7 +36,8 @@ jobs:
       - name: Install Cloudflare WARP
         run: |
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo tee /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg >/dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/jammy main" | sudo tee /etc/apt/sources.list.d/cloudflare-warp.list
+          cat /etc/apt/sources.list.d/cloudflare-warp.list
           sudo apt update && sudo apt install -y cloudflare-warp
 
       #WARPの起動とSOCKS5プロキシモードで起動
