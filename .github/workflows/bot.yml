@@ -51,7 +51,7 @@ jobs:
       - name: Reset and Start WARP in SOCKS proxy mode
         run: |
           warp-cli --accept-tos disconnect
-          warp-cli --accept-tos delete
+          warp-cli --accept-tos forget
           warp-cli --accept-tos registration new
           warp-cli --accept-tos mode proxy
           warp-cli --accept-tos connect
