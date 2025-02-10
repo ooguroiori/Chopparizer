@@ -21,44 +21,56 @@ class Music(commands.Cog):
 
     # 次の曲を再生する非同期関数
     async def play_next(self, ctx):
-        async with self.play_lock:
+        async with self.play_lock:  # 同期制御開始
             if len(self.queue) > 0:
                 try:
+                    # 現在再生中の曲を停止
                     if ctx.voice_client and ctx.voice_client.is_playing():
                         ctx.voice_client.stop()
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(0.5)
 
+                    # ボイスクライアント確認
                     if not ctx.voice_client:
                         return
-
-                    self.current_song = self.queue.popleft()
-                    player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
                     
-                    audio = discord.FFmpegPCMAudio(
-                        player.stream_url,
-                        **FFMPEG_OPTIONS,
-                        before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
-                    )
+                    # リピートモードが有効な場合、現在の曲をキューの最後に追加
+                    if self.repeat and self.current_song:
+                        self.queue.append(self.current_song)
 
+                    # キューから次の曲を取得
+                    self.current_song = self.queue.popleft()
+                    print(f"[DEBUG] 再生準備中: {self.current_song['title']}")
+
+                    # 音源を準備
+                    player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
+                    self.is_playing = True
+
+                    # プレイリストか単曲かを判定
+                    if isinstance(player, list):
+                        first_song = player[0]
+                        audio = discord.FFmpegPCMAudio(first_song['url'], **FFMPEG_OPTIONS)
+                    else:
+                        audio = player
+
+                    # 再生完了後のコールバック関数
                     def after_playing(error):
                         if error:
-                            print(f"[ERROR] Playback error: {str(error)}")
-                        future = asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
-                        try:
-                            future.result()
-                        except Exception as e:
-                            print(f"[ERROR] Error in after_playing: {str(e)}")
+                            print(f"[ERROR] 再生エラー: {str(error)}")
+                        asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
 
+                    # 音声の再生を開始
                     ctx.voice_client.play(audio, after=after_playing)
-                    self.is_playing = True
-                    
+                    print(f"[DEBUG] 再生開始: {self.current_song['title']}")
+
+                    # リピート設定の場合はキューに追加
                     if self.repeat:
                         self.queue.append(self.current_song)
-                    
+
+                    # 再生開始メッセージを送信
                     await ctx.send(f'🎵 再生中: {self.current_song["title"]}')
 
                 except Exception as e:
-                    print(f"[ERROR] Play error: {str(e)}")
+                    print(f"[ERROR] 再生エラー: {str(e)}")
                     await self.play_next(ctx)
             else:
                 self.is_playing = False
@@ -84,37 +96,51 @@ class Music(commands.Cog):
 
         # プレイリスト処理用の非同期関数
         async def process_playlist():
-            result = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            if isinstance(result, list):
-                # プレイリストの処理
-                print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
-                for i, song in enumerate(result, 1):
+            try:
+                result = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+
+                if result is None:
+                    print(f"\n⚠️ スキップ: {url} は再生できません（ブロックまたはエラー）")
+                    return  # スキップして終了
+
+                if isinstance(result, list):
+                    # プレイリストの処理
+                    print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
+                    for i, song in enumerate(result, 1):
+                        song_url = song.get('url') or song.get('webpage_url') or song.get('id')
+                        if not song_url:
+                            print(f"⚠️ スキップ: {song.get('title', '不明な曲')}（URL取得失敗）")
+                            continue
+
+                        song_info = {
+                            'url': song_url,
+                            'title': song.get('title', f'Track {i}'),
+                            'requester': ctx.author
+                        }
+                        self.queue.append(song_info)
+                        print(f"[PLAYLIST] {i}. {song_info['title']}")
+
+                        # 最初の曲を再生
+                        if i == 1 and not self.is_playing:
+                            await self.play_next(ctx)
+
+                    print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
+                else:
+                    # 単曲の処理
+                    print("\n[PLAYLIST] 単曲を検出")
                     song_info = {
-                        'url': song.get('url') or song.get('webpage_url') or song['id'],
-                        'title': song.get('title', f'Track {i}'),
+                        'url': url,
+                        'title': result.title,
                         'requester': ctx.author
                     }
                     self.queue.append(song_info)
-                    print(f"[PLAYLIST] {i}. {song_info['title']}")
-                    
-                    # 最初の曲を再生
-                    if i == 1 and not self.is_playing:
+                    print(f"[PLAYLIST] 追加: {result.title}")
+
+                    if not self.is_playing:
                         await self.play_next(ctx)
-                
-                print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
-            else:
-                # 単曲の処理
-                print("\n[PLAYLIST] 単曲を検出")
-                song_info = {
-                    'url': url,
-                    'title': result.title,
-                    'requester': ctx.author
-                }
-                self.queue.append(song_info)
-                print(f"[PLAYLIST] 追加: {result.title}")
-                
-                if not self.is_playing:
-                    await self.play_next(ctx)
+
+            except Exception as e:
+                print(f"\n⚠️ エラー: プレイリストの処理中に問題が発生しました: {e}")
 
         # プレイリスト処理を非同期で開始
         asyncio.create_task(process_playlist())
