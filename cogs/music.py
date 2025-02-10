@@ -96,37 +96,51 @@ class Music(commands.Cog):
 
         # プレイリスト処理用の非同期関数
         async def process_playlist():
-            result = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            if isinstance(result, list):
-                # プレイリストの処理
-                print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
-                for i, song in enumerate(result, 1):
+            try:
+                result = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+
+                if result is None:
+                    print(f"\n⚠️ スキップ: {url} は再生できません（ブロックまたはエラー）")
+                    return  # スキップして終了
+
+                if isinstance(result, list):
+                    # プレイリストの処理
+                    print(f"\n[PLAYLIST] プレイリストを検出: {len(result)}曲")
+                    for i, song in enumerate(result, 1):
+                        song_url = song.get('url') or song.get('webpage_url') or song.get('id')
+                        if not song_url:
+                            print(f"⚠️ スキップ: {song.get('title', '不明な曲')}（URL取得失敗）")
+                            continue
+
+                        song_info = {
+                            'url': song_url,
+                            'title': song.get('title', f'Track {i}'),
+                            'requester': ctx.author
+                        }
+                        self.queue.append(song_info)
+                        print(f"[PLAYLIST] {i}. {song_info['title']}")
+
+                        # 最初の曲を再生
+                        if i == 1 and not self.is_playing:
+                            await self.play_next(ctx)
+
+                    print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
+                else:
+                    # 単曲の処理
+                    print("\n[PLAYLIST] 単曲を検出")
                     song_info = {
-                        'url': song.get('url') or song.get('webpage_url') or song['id'],
-                        'title': song.get('title', f'Track {i}'),
+                        'url': url,
+                        'title': result.title,
                         'requester': ctx.author
                     }
                     self.queue.append(song_info)
-                    print(f"[PLAYLIST] {i}. {song_info['title']}")
-                    
-                    # 最初の曲を再生
-                    if i == 1 and not self.is_playing:
+                    print(f"[PLAYLIST] 追加: {result.title}")
+
+                    if not self.is_playing:
                         await self.play_next(ctx)
-                
-                print(f"[PLAYLIST] 全{len(result)}曲の読み込みが完了")
-            else:
-                # 単曲の処理
-                print("\n[PLAYLIST] 単曲を検出")
-                song_info = {
-                    'url': url,
-                    'title': result.title,
-                    'requester': ctx.author
-                }
-                self.queue.append(song_info)
-                print(f"[PLAYLIST] 追加: {result.title}")
-                
-                if not self.is_playing:
-                    await self.play_next(ctx)
+
+            except Exception as e:
+                print(f"\n⚠️ エラー: プレイリストの処理中に問題が発生しました: {e}")
 
         # プレイリスト処理を非同期で開始
         asyncio.create_task(process_playlist())

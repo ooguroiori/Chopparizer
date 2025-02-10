@@ -61,7 +61,7 @@ YTDL_OPTIONS = {
 
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
-    'options': '-vn -threads 4 -preset ultrafast -tune zerolatency'
+    'options': '-vn -threads 4 -preset ultrafast -tune zerolatency',
     # -vn: 映像を無効化
     # -threads 4: 4スレッドで処理
     # -preset ultrafast: 最速の処理速度を優先
