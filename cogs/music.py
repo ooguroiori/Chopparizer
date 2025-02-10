@@ -21,76 +21,44 @@ class Music(commands.Cog):
 
     # 次の曲を再生する非同期関数
     async def play_next(self, ctx):
-        async with self.play_lock:  # 同期制御開始
+        async with self.play_lock:
             if len(self.queue) > 0:
                 try:
-                    # 現在再生中の曲を停止
                     if ctx.voice_client and ctx.voice_client.is_playing():
                         ctx.voice_client.stop()
-                        await asyncio.sleep(0.5)
+                        await asyncio.sleep(1)
 
-                    # ボイスクライアント確認
                     if not ctx.voice_client:
                         return
 
                     self.current_song = self.queue.popleft()
-                    try:
-                        player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
-                        if player is None or "Video unavailable" in str(player) or "copyright grounds" in str(player):
-                            await ctx.send(f"🚫 {self.current_song['title']}は著作権または地域制限のためスキップします")
-                            await self.play_next(ctx)  # 次の曲へ
-                            return
-                        
-                        self.is_playing = True
-                        # 以下、通常の再生処理
-                    except Exception as e:
-                        print(f"[ERROR] 再生エラー: {str(e)}")
-                        await ctx.send(f"🚫 再生エラーが発生したためスキップします")
-                        await self.play_next(ctx)
-                        return
-                except Exception as e:
-                    print(f"[ERROR] 処理エラー: {str(e)}")
-                    self.is_playing = False
-                    self.current_song = None
-                    
-                    # リピートモードが有効な場合、現在の曲をキューの最後に追加
-                    if self.repeat and self.current_song:
-                        self.queue.append(self.current_song)
-
-                    # キューから次の曲を取得
-                    self.current_song = self.queue.popleft()
-                    print(f"[DEBUG] 再生準備中: {self.current_song['title']}")
-
-                    # 音源を準備
                     player = await YTDLSource.from_url(self.current_song['url'], loop=self.bot.loop, stream=True)
-                    self.is_playing = True
+                    
+                    audio = discord.FFmpegPCMAudio(
+                        player.stream_url,
+                        **FFMPEG_OPTIONS,
+                        before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
+                    )
 
-                    # プレイリストか単曲かを判定
-                    if isinstance(player, list):
-                        first_song = player[0]
-                        audio = discord.FFmpegPCMAudio(first_song['url'], **FFMPEG_OPTIONS)
-                    else:
-                        audio = player
-
-                    # 再生完了後のコールバック関数
                     def after_playing(error):
                         if error:
-                            print(f"[ERROR] 再生エラー: {str(error)}")
-                        asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
+                            print(f"[ERROR] Playback error: {str(error)}")
+                        future = asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop)
+                        try:
+                            future.result()
+                        except Exception as e:
+                            print(f"[ERROR] Error in after_playing: {str(e)}")
 
-                    # 音声の再生を開始
                     ctx.voice_client.play(audio, after=after_playing)
-                    print(f"[DEBUG] 再生開始: {self.current_song['title']}")
-
-                    # リピート設定の場合はキューに追加
+                    self.is_playing = True
+                    
                     if self.repeat:
                         self.queue.append(self.current_song)
-
-                    # 再生開始メッセージを送信
+                    
                     await ctx.send(f'🎵 再生中: {self.current_song["title"]}')
 
                 except Exception as e:
-                    print(f"[ERROR] 再生エラー: {str(e)}")
+                    print(f"[ERROR] Play error: {str(e)}")
                     await self.play_next(ctx)
             else:
                 self.is_playing = False
