@@ -35,6 +35,7 @@ YTDL_OPTIONS = {
     'force-ipv4': True,                 # IPv4の使用を強制
     'source_address': '0.0.0.0',        # 接続元IPアドレス
     
+    'allow_unplayable_formats': True,   # 再生不可能な形式も許可
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
     'noplaylist': False,                # プレイリストの処理を許可
     'nocheckcertificate': True,         # SSL証明書チェックを無効化

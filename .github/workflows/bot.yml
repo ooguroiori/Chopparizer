@@ -66,11 +66,6 @@ jobs:
           curl --socks5 127.0.0.1:9050 https://ipinfo.io/country
           echo "Exit Node国確認完了"
 
-      - name: Create Cookie File
-        run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
-          chmod 600 youtube.cookies
-
       - name: Run Bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
