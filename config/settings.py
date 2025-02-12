@@ -18,6 +18,7 @@ YTDL_OPTIONS = {
     'username': NAME,                   # ユーザー名
     'password': PASSWORD,               # パスワード
     'cookies': COOKIE,                  # クッキーファイルの使用
+    'cookiesfrombrowser': ('chrome',),  # バックアップとしてブラウザからも取得
 
     # 基本設定
     'format': 'bestaudio',              # 最高音質のオーディオを選択
