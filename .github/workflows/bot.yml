@@ -57,9 +57,11 @@ jobs:
           echo "StrictNodes 1" | sudo tee -a /etc/tor/torrc
           sudo systemctl restart tor
           echo "Tor設定完了"
+          sleep 5  # 設定反映を待機
       
       - name: Verify JP Exit Node
         run: |
+          sleep 5  # 設定反映を待機
           curl --socks5 127.0.0.1:9050 https://ipinfo.io/country
           echo "Exit Node国確認完了"
 
