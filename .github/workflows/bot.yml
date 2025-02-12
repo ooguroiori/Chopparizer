@@ -44,13 +44,24 @@ jobs:
           sudo apt-get install -y tor
           sudo service tor start
 
-          # Torを日本のexit nodeに設定
+      - name: Test Tor Connection
+        run: |
+          sudo systemctl start tor
+          sudo systemctl status tor
+          curl --socks5 127.0.0.1:9050 https://check.torproject.org/
+          echo "Tor接続テスト完了"
+      
       - name: Configure Tor for JP exit nodes
         run: |
           echo "ExitNodes {jp}" | sudo tee -a /etc/tor/torrc
           echo "StrictNodes 1" | sudo tee -a /etc/tor/torrc
-          sudo service tor restart
-          curl --socks5 127.0.0.1:9050 https://check.torproject.org/
+          sudo systemctl restart tor
+          echo "Tor設定完了"
+      
+      - name: Verify JP Exit Node
+        run: |
+          curl --socks5 127.0.0.1:9050 https://ipinfo.io/country
+          echo "Exit Node国確認完了"
 
       - name: Run Bot
         env:
