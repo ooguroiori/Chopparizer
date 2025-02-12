@@ -75,6 +75,10 @@ YTDL_OPTIONS = {
     },
 }
 
+# プロキシが設定されている場合、YTDL_OPTIONSにプロキシを設定
+if PROXY:
+    YTDL_OPTIONS['proxy'] = PROXY
+
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
     'options': '-vn -threads 4 -preset ultrafast -tune zerolatency',
