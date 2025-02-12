@@ -68,10 +68,6 @@ jobs:
           sudo lsof -i :40000
           ps aux | grep warp
 
-      - name: Set WARP location to Japan
-        run: |
-            warp-cli --accept-tos location japan
-
       - name: Verify WARP connection
         run: |
           curl -v -x "socks5://127.0.0.1:40000" https://www.cloudflare.com/cdn-cgi/trace/
