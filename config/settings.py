@@ -17,25 +17,23 @@ YTDL_OPTIONS = {
     # 認証関連
     'username': NAME,                   # ユーザー名
     'password': PASSWORD,               # パスワード
-    'cookies': COOKIE,               # クッキーファイルの使用
+    'cookies': COOKIE,                  # クッキーファイルの使用
 
     # 基本設定
     'format': 'bestaudio',              # 最高音質のオーディオを選択
     'extractaudio': True,               # 音声のみを抽出
     'audioformat': 'mp3',               # MP3形式で出力
-    'outtmpl': '%(title)s.%(ext)s',    # 出力ファイル名のテンプレート
+    'outtmpl': '%(title)s.%(ext)s',     # 出力ファイル名のテンプレート
+    'hls_prefer_native': True,          # ネイティブHLSダウンローダーを使用
+    'hls_use_mpegts': True,             # MPEG-TSコンテナを使用
 
     # 地域とネットワーク設定
     'geo_bypass': True,                 # 地域制限をバイパス
     'geo_bypass_country': 'JP',         # 日本のIPをシミュレート
     'geo_bypass_ip_block': '203.104.0.0/16',  # 日本のIPレンジ
-    'proxy': '',                     # 必要に応じてプロキシを設定可能
+    'proxy': '',                        # 必要に応じてプロキシを設定可能
     'force-ipv4': True,                 # IPv4の使用を強制
     'source_address': '0.0.0.0',        # 接続元IPアドレス
-
-    # タイムアウトと再試行の設定
-    'socket_timeout': 10,  # ソケットタイムアウトを10秒に設定
-    'retries': 3,         # 失敗時の再試行回数
     
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
     'noplaylist': False,                # プレイリストの処理を許可
@@ -76,10 +74,14 @@ YTDL_OPTIONS = {
     'http_headers': {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': '*/*',                # すべてのコンテンツタイプを受け入れ
         'Origin': 'https://www.youtube.com',
         'Referer': 'https://www.youtube.com/'
-    }
+    },
+
+    # タイムアウトと再試行の設定
+    'socket_timeout': 10,  # ソケットタイムアウトを10秒に設定
+    'retries': 1,         # 失敗時の再試行回数
 }
 
 # プロキシが設定されている場合、YTDL_OPTIONSにプロキシを設定
