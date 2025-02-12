@@ -77,10 +77,6 @@ YTDL_OPTIONS = {
         'Origin': 'https://www.youtube.com',
         'Referer': 'https://www.youtube.com/'
     },
-
-    # タイムアウトと再試行の設定
-    'socket_timeout': 10,  # ソケットタイムアウトを10秒に設定
-    'retries': 1,         # 失敗時の再試行回数
 }
 
 # プロキシが設定されている場合、YTDL_OPTIONSにプロキシを設定
@@ -89,6 +85,6 @@ if PROXY:
 
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
-    'options': '-vn',  # 映像を無効化（音声のみ）
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'  # 接続の安定性を向上
+    'options': '-vn -acodec pcm_s16le -ar 48000 -ac 2 -bufsize 64k',  # 映像を無効化（音声のみ）
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -analyzeduration 0 -probesize 32768'  # 接続の安定性を向上
 }
