@@ -78,7 +78,7 @@ YTDL_OPTIONS = {
         'Accept': '*/*',                # すべてのコンテンツタイプを受け入れ
         'Origin': 'https://www.youtube.com',
         'Referer': 'https://www.youtube.com/',
-        'Cookie': os.getenv(COOKIE)  # クッキーを直接ヘッダーに設定
+        'Cookie': COOKIE  # クッキーを直接ヘッダーに設定
     },
 }
 
