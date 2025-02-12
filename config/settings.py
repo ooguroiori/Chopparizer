@@ -89,9 +89,6 @@ if PROXY:
 
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
-    'options': '-vn -threads 4 -preset ultrafast -tune zerolatency',
-    # -vn: 映像を無効化
-    # -threads 4: 4スレッドで処理
-    # -preset ultrafast: 最速の処理速度を優先
-    # -tune zerolatency: 低遅延モードを有効化
+    'options': '-vn',  # 映像を無効化（音声のみ）
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'  # 接続の安定性を向上
 }
