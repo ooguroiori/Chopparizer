@@ -10,14 +10,13 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 NAME = os.getenv('USER_NAME')
 PASSWORD = os.getenv('USER_PASSWORD')
 PROXY = os.getenv('PROXY')
-COOKIE = os.getenv('YOUTUBE_COOKIES')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
     # 認証関連
     'username': NAME,                   # ユーザー名
     'password': PASSWORD,               # パスワード
-    'cookies': COOKIE,                  # クッキーファイルの使用
+    'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
 
     # 基本設定
     'format': 'bestaudio',              # 最高音質のオーディオを選択
