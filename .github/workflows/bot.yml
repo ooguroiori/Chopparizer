@@ -32,6 +32,12 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
 
+          # タイムゾーンを日本時間に設定
+      - name: Set timezone to JST
+        run: |
+          sudo timedatectl set-timezone Asia/Tokyo
+
+
       #WARPの導入
       - name: Install Cloudflare WARP
         run: |
@@ -61,6 +67,10 @@ jobs:
           warp-cli --accept-tos status
           sudo lsof -i :40000
           ps aux | grep warp
+
+      - name: Set WARP location to Japan
+        run: |
+            warp-cli --accept-tos location japan
 
       - name: Verify WARP connection
         run: |
