@@ -10,6 +10,7 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 NAME = os.getenv('USER_NAME')
 PASSWORD = os.getenv('USER_PASSWORD')
 PROXY = os.getenv('PROXY')
+COOKIE = os.getenv('YOUTUBE_COOKIES')
 
 # YouTube-DL用の詳細設定
 YTDL_OPTIONS = {
@@ -75,7 +76,8 @@ YTDL_OPTIONS = {
         'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
         'Accept': '*/*',                # すべてのコンテンツタイプを受け入れ
         'Origin': 'https://www.youtube.com',
-        'Referer': 'https://www.youtube.com/'
+        'Referer': 'https://www.youtube.com/',
+        'Cookie': os.getenv(COOKIE)  # クッキーを直接ヘッダーに設定
     },
 }
 
@@ -85,6 +87,6 @@ if PROXY:
 
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
-    'options': '-vn -acodec pcm_s16le -ar 48000 -ac 2 -bufsize 64k',  # 映像を無効化（音声のみ）
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -analyzeduration 0 -probesize 32768'  # 接続の安定性を向上
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': '-vn -acodec pcm_s16le -ar 48000 -ac 2 -b:a 192k -bufsize 64k'
 }
