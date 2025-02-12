@@ -40,24 +40,16 @@ jobs:
           # Torをインストール
       - name: Install Tor
         run: |
-          ```bash
           sudo apt-get update
-          ```
-          ```bash
           sudo apt-get install -y tor
-          ```
-          ```bash
           sudo service tor start
-          ```
 
           # Torを日本のexit nodeに設定
       - name: Configure Tor for JP exit nodes
         run: |
           echo "ExitNodes {jp}" | sudo tee -a /etc/tor/torrc
           echo "StrictNodes 1" | sudo tee -a /etc/tor/torrc
-          ```bash
           sudo service tor restart
-          ```
 
       - name: Run Bot
         env:
