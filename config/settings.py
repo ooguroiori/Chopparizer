@@ -27,7 +27,8 @@ YTDL_OPTIONS = {
     # 地域とネットワーク設定
     'geo_bypass': True,                 # 地域制限をバイパス
     'geo_bypass_country': 'JP',         # 日本のIPをシミュレート
-    'proxy': 'socks5://127.0.0.1:40000',# 必要に応じてプロキシを設定可能
+    'geo_bypass_ip_block': '203.104.0.0/16',  # 日本のIPレンジ
+    'proxy': '',                        # 必要に応じてプロキシを設定可能
     'force-ipv4': True,                 # IPv4の使用を強制
     'source_address': '0.0.0.0',        # 接続元IPアドレス
     
