@@ -50,6 +50,7 @@ jobs:
           echo "ExitNodes {jp}" | sudo tee -a /etc/tor/torrc
           echo "StrictNodes 1" | sudo tee -a /etc/tor/torrc
           sudo service tor restart
+          curl --socks5 127.0.0.1:9050 https://check.torproject.org/
 
       - name: Run Bot
         env:

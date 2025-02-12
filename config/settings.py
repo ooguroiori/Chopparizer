@@ -32,6 +32,20 @@ YTDL_OPTIONS = {
     'proxy': PROXY,                     # 必要に応じてプロキシを設定可能
     'force-ipv4': True,                 # IPv4の使用を強制
     'source_address': '0.0.0.0',        # 接続元IPアドレス
+
+    # HTTP関連のヘッダー設定
+    'http_headers': {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',  # 最新のブラウザを偽装
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',  # 受け入れ可能なコンテンツタイプ
+        'Accept-Language': 'ja,en-US;q=0.7,en;q=0.3',  # 優先言語を日本語に設定
+        'Accept-Encoding': 'gzip, deflate',  # 圧縮方式の指定
+        'DNT': '1',  # Do Not Track設定を有効化
+        'Connection': 'keep-alive',  # 接続を維持
+    },
+
+    # タイムアウトと再試行の設定
+    'socket_timeout': 10,  # ソケットタイムアウトを10秒に設定
+    'retries': 3,         # 失敗時の再試行回数
     
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
     'noplaylist': False,                # プレイリストの処理を許可
@@ -56,7 +70,7 @@ YTDL_OPTIONS = {
     }],
     'extractor_args': {
         'youtubetab': {
-            'skip': ['authcheck']  # 認証チェックをスキップ
+            'skip': ['authcheck']       # 認証チェックをスキップ
         }
     },
 }
