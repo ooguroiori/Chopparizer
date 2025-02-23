@@ -45,7 +45,8 @@ YTDL_OPTIONS = {
     'no_warnings': True,                # 警告メッセージを抑制
     'default_search': 'auto',           # 検索モードを自動に設定
     'extract_flat': 'in_playlist',      # プレイリスト展開モード
-    'buffer-size': 32768,               # バッファサイズを32KBに設定
+    'buffer-size': 65536,               # バッファサイズを設定
+    'file_access_retries': 3,          # ファイルアクセスのリトライ回数
     'concurrent-fragments': 5,          # 同時ダウンロードの最大数
     'postprocessor-args': ['-threads', '4'],  # 後処理用のスレッド数
     'prefer-insecure': True,            # 非セキュアな接続を許可
@@ -67,9 +68,6 @@ YTDL_OPTIONS = {
     'external_downloader': 'aria2c',
     'external_downloader_args': [
         '--all-proxy', PROXY,
-        '--max-tries=5',
-        '--retry-wait=2',
-        '--connect-timeout=10'
     ],
     'nocheckcertificate': True,
     'http_headers': {
@@ -87,6 +85,6 @@ if PROXY:
 
 # FFmpeg用の音声処理オプション
 FFMPEG_OPTIONS = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-    'options': '-vn -acodec pcm_s16le -ar 48000 -ac 2 -b:a 192k -bufsize 64k'
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2',  # 再接続の待機時間を短縮
+    'options': '-vn -acodec pcm_s16le -ar 48000 -ac 2 -b:a 128k -bufsize 128k'     # バッファサイズを増加
 }
