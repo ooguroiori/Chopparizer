@@ -20,7 +20,7 @@ YTDL_OPTIONS = {
     'cookiefile': 'youtube.cookies',    # クッキーファイルの使用
 
     # 基本設定
-    'format': 'bestaudio',              # 最高音質のオーディオを選択
+    'format': 'bestaudio/best',         # 最高音質のオーディオを選択
     'extractaudio': True,               # 音声のみを抽出
     'audioformat': 'mp3',               # MP3形式で出力
     'outtmpl': '%(title)s.%(ext)s',     # 出力ファイル名のテンプレート
