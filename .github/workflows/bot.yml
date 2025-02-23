@@ -66,10 +66,6 @@ jobs:
           echo "${{ secrets.YOUTUBE_COOKIES }}" > youtube.cookies
           chmod 600 youtube.cookies
 
-      - name: Update cookies
-        run: |
-          yt-dlp --cookies-from-browser firefox > youtube.cookies
-
       - name: Run Bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
