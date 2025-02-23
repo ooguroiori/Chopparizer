@@ -33,7 +33,7 @@ YTDL_OPTIONS = {
     'geo_bypass_ip_block': '203.104.0.0/16',  # 日本のIPレンジ
     'proxy': '',                        # 必要に応じてプロキシを設定可能
     'force-ipv4': True,                 # IPv4の使用を強制
-    'source_address': '0.0.0.0',        # 接続元IPアドレス
+    'source_address': '127.0.0.1',      # 接続元IPアドレス
     
     'allow_unplayable_formats': True,   # 再生不可能な形式も許可
     'restrictfilenames': True,          # ファイル名を安全な文字のみに制限
