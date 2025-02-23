@@ -33,6 +33,7 @@ YTDL_OPTIONS = {
     'geo_bypass_ip_block': '203.104.0.0/16',  # 日本のIPレンジ
     'proxy': '',                        # 必要に応じてプロキシを設定可能
     'force-ipv4': True,                 # IPv4の使用を強制
+    'force_generic_extractor': True,    # 汎用エクストラクターを強制
     'source_address': '127.0.0.1',      # 接続元IPアドレス
     
     'allow_unplayable_formats': True,   # 再生不可能な形式も許可
@@ -71,9 +72,9 @@ YTDL_OPTIONS = {
     ],
     'nocheckcertificate': True,
     'http_headers': {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-        'Accept': '*/*',                # すべてのコンテンツタイプを受け入れ
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',                # すべてのコンテンツタイプを受け入れ
         'Origin': 'https://www.youtube.com',
         'Referer': 'https://www.youtube.com/',
     },
